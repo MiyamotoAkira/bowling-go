@@ -20,7 +20,7 @@ func Score() int {
 	return result
 }
 
-func Clear() {
+func StartNewGame() {
 	for i := range scores {
 		scores[i] = 0
 	}
