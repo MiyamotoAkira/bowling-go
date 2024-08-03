@@ -10,8 +10,12 @@ func Roll(roll int) {
 
 func Score() int {
 	result := 0
-	for _, v := range scores {
+	for i, v := range scores {
 		result += v
+		if v == 10 {
+			result += scores[i+1]
+			result += scores[i+2]
+		}
 	}
 	return result
 }
