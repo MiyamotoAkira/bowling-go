@@ -1,7 +1,7 @@
-package bowling_test
+package bowling_simple_test
 
 import (
-	"bowling"
+	bowling "bowling/bowling_simple"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"testing"

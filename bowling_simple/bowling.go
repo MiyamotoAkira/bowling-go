@@ -1,4 +1,4 @@
-package bowling
+package bowling_simple
 
 // 21 represents the maximum amount of possible rolls that could happen
 var scores [21]int
