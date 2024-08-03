@@ -3,39 +3,47 @@ package bowling_test
 import (
 	"bowling"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-func Test_SingleRoll(t *testing.T) {
-	bowling.StartNewGame()
-	bowling.Roll(5)
-	assert.Equal(t, 5, bowling.Score())
+type BowlingTestSuite struct {
+	suite.Suite
 }
 
-func Test_TwoRolls(t *testing.T) {
+func (suite *BowlingTestSuite) SetupTest() {
 	bowling.StartNewGame()
-	bowling.Roll(5)
-	bowling.Roll(5)
-	assert.Equal(t, 10, bowling.Score())
 }
 
-func Test_WithStrikeAndFollowUpRolls(t *testing.T) {
-	bowling.StartNewGame()
+func TestBowling(t *testing.T) {
+	suite.Run(t, new(BowlingTestSuite))
+}
+
+func (suite *BowlingTestSuite) Test_SingleRoll() {
+	bowling.Roll(5)
+	assert.Equal(suite.T(), 5, bowling.Score())
+}
+
+func (suite *BowlingTestSuite) Test_TwoRolls() {
+	bowling.Roll(5)
+	bowling.Roll(5)
+	assert.Equal(suite.T(), 10, bowling.Score())
+}
+
+func (suite *BowlingTestSuite) Test_WithStrikeAndFollowUpRolls() {
 	bowling.Roll(10)
 	bowling.Roll(4)
 	bowling.Roll(3)
-	assert.Equal(t, 24, bowling.Score())
+	assert.Equal(suite.T(), 24, bowling.Score())
 }
 
-func Test_WithStrikeAndWithSingleFollowUpRoll(t *testing.T) {
-	bowling.StartNewGame()
+func (suite *BowlingTestSuite) Test_WithStrikeAndWithSingleFollowUpRoll() {
 	bowling.Roll(10)
 	bowling.Roll(4)
-	assert.Equal(t, 18, bowling.Score())
+	assert.Equal(suite.T(), 18, bowling.Score())
 }
 
-func Test_WithStrikeAndWithNoFollowUPRoll(t *testing.T) {
-	bowling.StartNewGame()
+func (suite *BowlingTestSuite) Test_WithStrikeAndWithNoFollowUPRoll() {
 	bowling.Roll(10)
-	assert.Equal(t, 10, bowling.Score())
+	assert.Equal(suite.T(), 10, bowling.Score())
 }
