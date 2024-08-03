@@ -19,13 +19,10 @@ func Score() int {
 			break
 		}
 
-		// we skip calculation of unused roll/frames
+		// if we found the sentinel value no more rolls
+		// have been made
 		if v == -1 {
-			newFrame = !newFrame
-			if newFrame {
-				numberOfFrames++
-			}
-			continue
+			break
 		}
 
 		// Generally we add the current value
