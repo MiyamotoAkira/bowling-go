@@ -30,6 +30,8 @@ type frame interface {
 	is_strike() bool
 	is_spare() bool
 	frame_score() int
+	frame_score_v2(nextFrame frame, nextNextFrame frame) int
+	first_roll_score() int
 }
 
 type standardFrame struct {
@@ -54,6 +56,14 @@ func (frame *standardFrame) is_strike() bool {
 
 func (frame *finalFrame) is_strike() bool {
 	return frame.rolls[firstRoll].score == maxFrameScore
+}
+
+func (frame *finalFrame) first_roll_score() int {
+	return frame.rolls[firstRoll].score
+}
+
+func (frame *standardFrame) first_roll_score() int {
+	return frame.rolls[firstRoll].score
 }
 
 func (frame *standardFrame) is_spare() bool {
@@ -89,6 +99,33 @@ func (frame *standardFrame) frame_score() int {
 }
 
 func (frame *finalFrame) frame_score() int {
+	return frame.rolls[firstRoll].score + frame.rolls[secondRoll].score
+}
+
+func (frame *finalFrame) full_frame_score() int {
+	return frame.rolls[firstRoll].score + frame.rolls[secondRoll].score + frame.rolls[thirdRoll].score
+}
+
+func (frame *standardFrame) frame_score_v2(nextFrame frame, nextNextFrame frame) int {
+	total := frame.rolls[firstRoll].score + frame.rolls[secondRoll].score
+	if frame.is_strike() {
+		if nextFrame != nil {
+			total += nextFrame.frame_score()
+
+			if nextFrame.is_strike() && nextNextFrame != nil {
+				total += nextNextFrame.first_roll_score()
+			}
+		}
+	}
+
+	if frame.is_spare() && nextFrame != nil {
+		total += nextFrame.first_roll_score()
+	}
+
+	return total
+}
+
+func (frame *finalFrame) frame_score_v2(nextFrame frame, nextNextFrame frame) int {
 	return frame.rolls[firstRoll].score + frame.rolls[secondRoll].score + frame.rolls[thirdRoll].score
 }
 
@@ -115,7 +152,6 @@ func (bowling_game *game) start_game() {
 }
 
 func (bowling_game *game) roll_pins(score int) {
-
 	if bowling_game.current_frame > 8 {
 		bowling_game.final_frame.roll_pins(score)
 	} else {
@@ -130,35 +166,23 @@ func (bowling_game *game) roll_pins(score int) {
 func (bowling_game *game) score_game() int {
 	total := 0
 	for i, v := range bowling_game.frames {
-		total += v.frame_score()
-		if v.is_strike() {
-			if i == 8 {
-				total += bowling_game.final_frame.two_roll_score()
-			} else if i == 7 {
-				total += bowling_game.frames[i+1].frame_score()
 
-				if bowling_game.frames[i+1].is_strike() {
-					total += bowling_game.final_frame.rolls[firstRoll].score
-				}
-			} else {
-				total += bowling_game.frames[i+1].frame_score()
+		var nextFrame frame = nil
+		var nextNextFrame frame = nil
+		if i == 8 {
+			nextFrame = &bowling_game.final_frame
+		} else if i == 7 {
+			nextFrame = &bowling_game.frames[i+1]
+			nextNextFrame = &bowling_game.final_frame
 
-				if bowling_game.frames[i+1].is_strike() {
-					total += bowling_game.frames[i+2].rolls[firstRoll].score
-				}
-			}
+		} else {
+			nextFrame = &bowling_game.frames[i+1]
+			nextNextFrame = &bowling_game.frames[i+2]
 		}
-
-		if v.is_spare() {
-			if i == 8 {
-				total += bowling_game.final_frame.rolls[firstRoll].score
-			} else {
-				total += bowling_game.frames[i+1].rolls[firstRoll].score
-			}
-		}
+		total += v.frame_score_v2(nextFrame, nextNextFrame)
 	}
 
-	total += bowling_game.final_frame.frame_score()
+	total += bowling_game.final_frame.full_frame_score()
 
 	return total
 }
