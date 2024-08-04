@@ -1,5 +1,10 @@
 package bowling_structs
 
+const maxFrameScore = 10
+const firstRoll = 0
+const secondRoll = 1
+const thirdRoll = 2
+
 type roll interface {
 	score_pins(score int)
 	is_scored() bool
@@ -36,44 +41,44 @@ type finalFrame struct {
 }
 
 func (frame *standardFrame) is_full_frame() bool {
-	return frame.is_strike() || (frame.rolls[0].is_scored() && frame.rolls[1].is_scored())
+	return frame.is_strike() || (frame.rolls[firstRoll].is_scored() && frame.rolls[secondRoll].is_scored())
 }
 
 func (frame *finalFrame) is_full_frame() bool {
-	return frame.is_strike() || (frame.rolls[0].is_scored() && frame.rolls[1].is_scored())
+	return frame.is_strike() || (frame.rolls[firstRoll].is_scored() && frame.rolls[secondRoll].is_scored())
 }
 
 func (frame *standardFrame) is_strike() bool {
-	return frame.rolls[0].score == 10
+	return frame.rolls[0].score == maxFrameScore
 }
 
 func (frame *finalFrame) is_strike() bool {
-	return frame.rolls[0].score == 10
+	return frame.rolls[0].score == maxFrameScore
 }
 
 func (frame *standardFrame) is_spare() bool {
-	return !frame.is_strike() && (frame.rolls[0].score+frame.rolls[1].score == 10)
+	return !frame.is_strike() && (frame.rolls[0].score+frame.rolls[1].score == maxFrameScore)
 }
 
 func (frame *finalFrame) is_spare() bool {
-	return !frame.is_strike() && (frame.rolls[0].score+frame.rolls[1].score == 10)
+	return !frame.is_strike() && (frame.rolls[0].score+frame.rolls[1].score == maxFrameScore)
 }
 
 func (frame *standardFrame) roll_pins(score int) {
-	var roll_number = 0
-	if frame.rolls[0].is_scored() {
-		roll_number = 1
+	var roll_number = firstRoll
+	if frame.rolls[firstRoll].is_scored() {
+		roll_number = secondRoll
 	}
 
 	frame.rolls[roll_number].score_pins(score)
 }
 
 func (frame *finalFrame) roll_pins(score int) {
-	var roll_number = 0
-	if frame.rolls[1].is_scored() {
-		roll_number = 2
-	} else if frame.rolls[0].is_scored() {
-		roll_number = 1
+	var roll_number = firstRoll
+	if frame.rolls[secondRoll].is_scored() {
+		roll_number = thirdRoll
+	} else if frame.rolls[firstRoll].is_scored() {
+		roll_number = secondRoll
 	}
 
 	frame.rolls[roll_number].score_pins(score)
@@ -84,11 +89,11 @@ func (frame *standardFrame) frame_score() int {
 }
 
 func (frame *finalFrame) frame_score() int {
-	return frame.rolls[0].score + frame.rolls[1].score + frame.rolls[2].score
+	return frame.rolls[firstRoll].score + frame.rolls[secondRoll].score + frame.rolls[thirdRoll].score
 }
 
 func (frame *finalFrame) two_roll_score() int {
-	return frame.rolls[0].score + frame.rolls[1].score
+	return frame.rolls[firstRoll].score + frame.rolls[secondRoll].score
 }
 
 type bowlingGame interface {
@@ -146,9 +151,9 @@ func (bowling_game *game) score_game() int {
 
 		if v.is_spare() {
 			if i == 8 {
-				total += bowling_game.final_frame.rolls[0].score
+				total += bowling_game.final_frame.rolls[firstRoll].score
 			} else {
-				total += bowling_game.frames[i+1].rolls[0].score
+				total += bowling_game.frames[i+1].rolls[firstRoll].score
 			}
 		}
 	}
