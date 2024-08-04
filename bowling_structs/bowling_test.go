@@ -98,3 +98,14 @@ func (suite *BowlingTestSuite) Test_StrikeOnFinalFrame() {
 
 	assert.Equal(suite.T(), 48, bowling.Score())
 }
+
+func (suite *BowlingTestSuite) Test_SpareOnFinalFrame() {
+	for i := 0; i < 18; i++ {
+		bowling.Roll(1)
+	}
+	bowling.Roll(6)
+	bowling.Roll(4)
+	bowling.Roll(3)
+
+	assert.Equal(suite.T(), 31, bowling.Score())
+}
