@@ -5,11 +5,6 @@ const firstRoll = 0
 const secondRoll = 1
 const thirdRoll = 2
 
-type roll interface {
-	score_pins(score int)
-	is_scored() bool
-}
-
 type standardRoll struct {
 	score  int
 	scored bool
@@ -129,16 +124,6 @@ func (frame *finalFrame) frame_score_v2(nextFrame frame, nextNextFrame frame) in
 	return frame.rolls[firstRoll].score + frame.rolls[secondRoll].score + frame.rolls[thirdRoll].score
 }
 
-func (frame *finalFrame) two_roll_score() int {
-	return frame.rolls[firstRoll].score + frame.rolls[secondRoll].score
-}
-
-type bowlingGame interface {
-	roll_pins(score int)
-	score_game() int
-	start_game()
-}
-
 type game struct {
 	frames        [9]standardFrame
 	final_frame   finalFrame
@@ -167,8 +152,8 @@ func (bowling_game *game) score_game() int {
 	total := 0
 	for i, v := range bowling_game.frames {
 
-		var nextFrame frame = nil
-		var nextNextFrame frame = nil
+		var nextFrame frame
+		var nextNextFrame frame
 		if i == 8 {
 			nextFrame = &bowling_game.final_frame
 		} else if i == 7 {
