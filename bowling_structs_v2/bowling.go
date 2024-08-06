@@ -86,7 +86,7 @@ func (frame *standardFrame) addBonus(score int) {
 }
 
 type game struct {
-	frames        [10]standardFrame
+	frames        [MAX_FRAMES]standardFrame
 	current_frame int
 }
 
