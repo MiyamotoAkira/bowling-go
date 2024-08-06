@@ -1,10 +1,10 @@
 package bowling_structs_v2
 
-const maxFrameScore = 10
-const firstRoll = 0
-const secondRoll = 1
-const thirdRoll = 2
-const maxFrames = 10
+const MAX_FRAME_SCORE = 10
+const FIRST_ROLL = 0
+const SECOND_ROLL = 1
+const THIRD_ROLL = 2
+const MAX_FRAMES = 10
 
 type standardRoll struct {
 	score  int
@@ -17,40 +17,39 @@ func (roll *standardRoll) score_pins(score int) {
 }
 
 type standardFrame struct {
-	rolls          [3]standardRoll
-	is_final_frame bool
-	last_roll      standardRoll
-	bonus_score    [2]standardRoll
+	rolls        [3]standardRoll
+	isFinalFrame bool
+	bonusScore   [2]standardRoll
 }
 
-func (frame *standardFrame) is_full_frame() bool {
-	if frame.is_final_frame {
-		return frame.rolls[thirdRoll].scored
+func (frame *standardFrame) isFullFrame() bool {
+	if frame.isFinalFrame {
+		return frame.rolls[THIRD_ROLL].scored
 	} else {
-		return frame.is_strike() || frame.rolls[secondRoll].scored
+		return frame.isStrike() || frame.rolls[SECOND_ROLL].scored
 	}
 }
 
-func (frame *standardFrame) is_strike() bool {
-	return frame.rolls[firstRoll].score == maxFrameScore
+func (frame *standardFrame) isStrike() bool {
+	return frame.rolls[FIRST_ROLL].score == MAX_FRAME_SCORE
 }
 
-func (frame *standardFrame) is_spare() bool {
-	return !frame.is_strike() && (frame.rolls[firstRoll].score+frame.rolls[secondRoll].score == maxFrameScore)
+func (frame *standardFrame) isSpare() bool {
+	return !frame.isStrike() && (frame.rolls[FIRST_ROLL].score+frame.rolls[SECOND_ROLL].score == MAX_FRAME_SCORE)
 }
 
-func (frame *standardFrame) roll_pins(score int) {
-	var roll_number = firstRoll
-	if frame.is_final_frame {
-		if frame.rolls[secondRoll].scored {
-			roll_number = thirdRoll
-		} else if frame.rolls[firstRoll].scored {
-			roll_number = secondRoll
+func (frame *standardFrame) rollPins(score int) {
+	var roll_number = FIRST_ROLL
+	if frame.isFinalFrame {
+		if frame.rolls[SECOND_ROLL].scored {
+			roll_number = THIRD_ROLL
+		} else if frame.rolls[FIRST_ROLL].scored {
+			roll_number = SECOND_ROLL
 		}
 
 	} else {
-		if frame.rolls[firstRoll].scored {
-			roll_number = secondRoll
+		if frame.rolls[FIRST_ROLL].scored {
+			roll_number = SECOND_ROLL
 		}
 	}
 
@@ -59,29 +58,29 @@ func (frame *standardFrame) roll_pins(score int) {
 
 func (frame *standardFrame) score() int {
 	total := 0
-	total += frame.rolls[firstRoll].score
-	total += frame.rolls[secondRoll].score
-	if frame.is_final_frame {
-		total += frame.rolls[thirdRoll].score
+	total += frame.rolls[FIRST_ROLL].score
+	total += frame.rolls[SECOND_ROLL].score
+	if frame.isFinalFrame {
+		total += frame.rolls[THIRD_ROLL].score
 	}
-	total += frame.bonus_score[firstRoll].score
-	total += frame.bonus_score[secondRoll].score
+	total += frame.bonusScore[FIRST_ROLL].score
+	total += frame.bonusScore[SECOND_ROLL].score
 
 	return total
 }
 
-func (frame *standardFrame) add_bonus(score int) {
-	if frame.is_strike() {
-		if !frame.bonus_score[firstRoll].scored {
-			frame.bonus_score[firstRoll].score_pins(score)
-		} else if !frame.bonus_score[secondRoll].scored {
-			frame.bonus_score[secondRoll].score_pins(score)
+func (frame *standardFrame) addBonus(score int) {
+	if frame.isStrike() {
+		if !frame.bonusScore[FIRST_ROLL].scored {
+			frame.bonusScore[FIRST_ROLL].score_pins(score)
+		} else if !frame.bonusScore[SECOND_ROLL].scored {
+			frame.bonusScore[SECOND_ROLL].score_pins(score)
 		}
 	}
 
-	if frame.is_spare() {
-		if !frame.bonus_score[firstRoll].scored {
-			frame.bonus_score[firstRoll].score_pins(score)
+	if frame.isSpare() {
+		if !frame.bonusScore[FIRST_ROLL].scored {
+			frame.bonusScore[FIRST_ROLL].score_pins(score)
 		}
 	}
 }
@@ -91,31 +90,31 @@ type game struct {
 	current_frame int
 }
 
-func (bowling_game *game) start_game() {
-	bowling_game.frames = [maxFrames]standardFrame{}
-	bowling_game.frames[maxFrames-1].is_final_frame = true
-	bowling_game.current_frame = 0
+func (bowlingGame *game) startGame() {
+	bowlingGame.frames = [MAX_FRAMES]standardFrame{}
+	bowlingGame.frames[MAX_FRAMES-1].isFinalFrame = true
+	bowlingGame.current_frame = 0
 }
 
-func (bowling_game *game) roll_pins(score int) {
-	bowling_game.frames[bowling_game.current_frame].roll_pins(score)
+func (bowlingGame *game) rollPins(score int) {
+	bowlingGame.frames[bowlingGame.current_frame].rollPins(score)
 
-	if bowling_game.current_frame-1 >= 0 {
-		bowling_game.frames[bowling_game.current_frame-1].add_bonus(score)
+	if bowlingGame.current_frame-1 >= 0 {
+		bowlingGame.frames[bowlingGame.current_frame-1].addBonus(score)
 	}
 
-	if bowling_game.current_frame-2 >= 0 {
-		bowling_game.frames[bowling_game.current_frame-2].add_bonus(score)
+	if bowlingGame.current_frame-2 >= 0 {
+		bowlingGame.frames[bowlingGame.current_frame-2].addBonus(score)
 	}
 
-	if bowling_game.frames[bowling_game.current_frame].is_full_frame() {
-		bowling_game.current_frame++
+	if bowlingGame.frames[bowlingGame.current_frame].isFullFrame() {
+		bowlingGame.current_frame++
 	}
 }
 
-func (bowling_game *game) score_game() int {
+func (bowlingGame *game) scoreGame() int {
 	total := 0
-	for _, v := range bowling_game.frames {
+	for _, v := range bowlingGame.frames {
 		total += v.score()
 	}
 
@@ -123,15 +122,15 @@ func (bowling_game *game) score_game() int {
 }
 
 func Roll(score int) {
-	bowling_game.roll_pins(score)
+	bowlingGame.rollPins(score)
 }
 
 func Score() int {
-	return bowling_game.score_game()
+	return bowlingGame.scoreGame()
 }
 
-var bowling_game game
+var bowlingGame game
 
 func StartNewGame() {
-	bowling_game.start_game()
+	bowlingGame.startGame()
 }
