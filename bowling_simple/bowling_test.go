@@ -109,3 +109,13 @@ func (suite *BowlingTestSuite) Test_SpareOnFinalFrame() {
 
 	assert.Equal(suite.T(), 31, bowling.Score())
 }
+
+func BenchmarkFullGame(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		bowling.StartNewGame()
+		for b := 0; b < 21; b++ {
+			bowling.Roll(i % 5)
+		}
+		bowling.Score()
+	}
+}
